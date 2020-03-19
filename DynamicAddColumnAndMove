@@ -3,7 +3,7 @@ moving the column to a different position in a dynamic dataset will cause an err
 names it started with. To circumvent the error:
 1. Add column
 2. Get all of the columns within the power query dataset and put into a list container
-3. Reorder column in power query AHEAD of the entire list (and pray that your volatile columns are typically at the back end of the data)
+3. Reorder column in power query AHEAD of the entire list (if your volatile columns are at the back end of the data)
 
 Website references: 
 https://community.powerbi.com/t5/Desktop/Query-Add-column-at-the-beginning/td-p/516184
@@ -28,13 +28,24 @@ in
 - Result is a step represents sorted TableData based on ReorderedList 
 
 
-No idea what this alternative is for but just in case the website is down, can explore this further next time:
+Alternatively, if you need to put the custom column somewhere in the middle of your data, this method splits the column headers into 
+two halves and lets you sandwich the custom column in between the two. 
+
 
 let
     ...
-    TableData = Table.AddColumn(TransformColumnTypes, "Half Year", each if [Month] < 7 then 1 else 2),
-    ColumnNames = Table.ColumnNames(TableData),
-    ReorderedList = List.Combine({{"Half Year"},List.RemoveMatchingItems(ColumnNames,{"Half Year"})}),
-    Result = Table.ReorderColumns(TableData,ReorderedList)
+    #"Added Custom" = Table.AddColumn(Source, "Custom", each ...),
+    // Get a list of all of the columns in the dataset after adding Custom column without the custom column 
+    //(to allow rearrangement of custom column later)
+    ColumnNames = List.FirstN(Table.ColumnNames(#"Added Custom"),List.Count(Table.ColumnNames(#"Added Custom"))-1),
+    //Split the column names into a first half, the column headers you want BEFORE your custom column
+    ColumnNameFirstHalf = List.FirstN(ColumnNames,10),
+    //Split the column names into a second half, the column headers you want AFTER your custom column
+    ColumnNameSecondHalf = List.LastN(ColumnNames,List.Count(ColumnNames)-List.Count(ColumnNameFirstHalf)),
+    //Reorder the list to sandwich custom column between first and second halves
+    ReorderedList = List.Combine({ColumnNameFirstHalf,{"Custom"},ColumnNameSecondHalf}),
+    // Reorder the columns to follow the reordered list order
+    #"Reordered Columns" = Table.ReorderColumns(#"Added Custom",ReorderedList),
+    ...
 in
-    Result
+    ...
