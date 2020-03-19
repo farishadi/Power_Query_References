@@ -38,8 +38,8 @@ let
     // Get a list of all of the columns in the dataset after adding Custom column without the custom column 
     //(to allow rearrangement of custom column later)
     ColumnNames = List.FirstN(Table.ColumnNames(#"Added Custom"),List.Count(Table.ColumnNames(#"Added Custom"))-1),
-    //Split the column names into a first half, the column headers you want BEFORE your custom column
-    ColumnNameFirstHalf = List.FirstN(ColumnNames,10),
+    //Split the column names into a first half (split via column header keyword), the column headers you want BEFORE your custom column
+    ColumnNameFirstHalf = List.FirstN(ColumnNames,List.PositionOf(ColumnNames, "ColumnHeaderToSplitAt") +1),
     //Split the column names into a second half, the column headers you want AFTER your custom column
     ColumnNameSecondHalf = List.LastN(ColumnNames,List.Count(ColumnNames)-List.Count(ColumnNameFirstHalf)),
     //Reorder the list to sandwich custom column between first and second halves
