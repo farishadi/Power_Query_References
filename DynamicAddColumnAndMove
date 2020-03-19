@@ -1,0 +1,40 @@
+Adding a new column in Power Query will usually add the column to the end of the dataset and while that does not typically cause an error, 
+moving the column to a different position in a dynamic dataset will cause an error if the column names aren't exactly the same as the 
+names it started with. To circumvent the error:
+1. Add column
+2. Get all of the columns within the power query dataset and put into a list container
+3. Reorder column in power query AHEAD of the entire list (and pray that your volatile columns are typically at the back end of the data)
+
+Website references: 
+https://community.powerbi.com/t5/Desktop/Query-Add-column-at-the-beginning/td-p/516184
+
+
+To move Custom column to the first column:
+
+let    
+   ...
+    TableData = Table.AddColumn(TransformColumnTypes, "Half Year", each if [Month] < 7 then 1 else 2),
+    ColumnNames = Table.ColumnNames(TableData),
+    ReorderedList = List.Combine({{"Half Year"},List.FirstN(ColumnNames,List.Count(ColumnNames)-1)}),
+    Result = Table.ReorderColumns(TableData,ReorderedList)
+in
+ Result
+ 
+ where
+- TableData is the last step of your data, in my case, it is a step where I've added a new custom column
+- Half Year is my custom column which I want to be first each time
+- ColumnNames is a step which contains a list of columns from TableData
+- ReorderedList is a step which represents column names where my custom column comes first and all other column next (does not matter how many)
+- Result is a step represents sorted TableData based on ReorderedList 
+
+
+No idea what this alternative is for but just in case the website is down, can explore this further next time:
+
+let
+    ...
+    TableData = Table.AddColumn(TransformColumnTypes, "Half Year", each if [Month] < 7 then 1 else 2),
+    ColumnNames = Table.ColumnNames(TableData),
+    ReorderedList = List.Combine({{"Half Year"},List.RemoveMatchingItems(ColumnNames,{"Half Year"})}),
+    Result = Table.ReorderColumns(TableData,ReorderedList)
+in
+    Result
