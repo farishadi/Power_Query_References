@@ -1,0 +1,13 @@
+To pass parameters into a Power Query connection whether for filtering or for SQL query manipulation, we'll first need to create a new
+Table in Excel. 
+1. Create a simple header values format table in Excel, select the range > Data > From Table/Range > Click my table has headers and done!
+2. Load the table into a Power Query connection and Name the query into something easy to call, like "Parameter". 
+3. Access table by importing it into your data connection first. Add this code into the first line of your
+   Advanced Query:
+      SpParameter = Excel.CurrentWorkbook(){[Name="Parameter"]}[Content],
+      Where you are calling the Query "Parameter" and its values and assigning it to a parameter called "SpParameter"
+4. If your parameter has multiple columns, access it by calling it via its index: 
+      SpParameter[Col1header]{0} returns the value of the first row and the first column
+      SpParameter[Col2header]{0} returns the value of the first row and the second column
+5. To use the parameters as a filter, convert the table to a list format, then push it in as filter criterea with this code:
+      #"Filtered Rows" = Table.SelectRows(#"PreviousStepName", each List.Contains(ParameterList, [HeaderToFilterName])),
