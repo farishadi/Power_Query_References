@@ -1,5 +1,8 @@
-'webpage source: https://stackoverflow.com/questions/52080497/powerbi-change-type-to-multiple-columns-at-the-same-time
-'Command below changes all columns after the second one to the type specified
-'Can change number of columns dynamically, will need to get column index by name first
+webpage source: https://stackoverflow.com/questions/52080497/powerbi-change-type-to-multiple-columns-at-the-same-time
+Command below changes all columns after the second one to the type specified
+Can change number of columns dynamically, will need to get column index by name first
+
+For more options on types to use, refer to :
+https://excelgorilla.com/power-bi/power-query/define-data-type-custom-column/
 
 = Table.TransformColumnTypes(Source,List.Transform(List.RemoveFirstN(Table.ColumnNames(Source),2),each {_, type number}))
