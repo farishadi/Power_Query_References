@@ -1,0 +1,4 @@
+'webpage source: https://stackoverflow.com/questions/52080497/powerbi-change-type-to-multiple-columns-at-the-same-time
+'Command below changes all columns after the second one to the type specified
+
+= Table.TransformColumnTypes(Source,List.Transform(List.RemoveFirstN(Table.ColumnNames(Source),2),each {_, type number}))
