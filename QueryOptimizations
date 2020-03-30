@@ -1,0 +1,6 @@
+'to run queries without explicitly setting query permissions levels (POTENTTIAL SECURITY ISSUE, but assures ease of use on user's end)
+ThisWorkbook.Queries.FastCombine = True 'POTENTIAL SECURITY ISSUE
+
+'to refresh a specific query
+ThisWorkbook.Connections("Query - WW_Query").Refresh
+
