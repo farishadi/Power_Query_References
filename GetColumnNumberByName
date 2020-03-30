@@ -1,0 +1,5 @@
+Code converts source columns to a list and looks for the position of the column within the list by name.
+Result is on base 0, so will need to + 1 to reference correct relative position
+Can be used in conjuction with Rearrange Methods or Bulk Column Type Transforms.
+
+= List.PositionOf(List.FirstN(Table.ColumnNames(#"Source"),List.Count(Table.ColumnNames(#"Source"))), "ColumName") + 1
