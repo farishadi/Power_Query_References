@@ -28,7 +28,11 @@ seven,700
 eight,800
 nine,900
 
-If both csv files are necessary references within your Excel file, we can use the default process to join the two tables queried. (My personal use case example : one.csv was a business date to workweek conversion table, and two.csv was a data file that had dates, but needed a workweek column I can join with one.csv to create)
+
+
+If both csv files are necessary references within your Excel file, we can use the default process to join the two tables queried. 
+(My personal use case example : one.csv was a business date to workweek conversion table, and two.csv was a data file that had dates, 
+but needed a workweek column I can join with one.csv to create)
 
 DEFAULT
 -------------------------------------------------------------------------------------------------------------------------------------
@@ -42,48 +46,49 @@ in
 
 TWO.CSV POWER QUERY CODE:
 let
-    Source = Csv.Document(File.Contents("C:\Temp\one.csv"),[Delimiter=",",Encoding=1252]),
-    #"Promoted Headers" = Table.PromoteHeaders(Source),
-    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Column1", type text}, {"Column2", Int64.Type}}),
+	Source = Csv.Document(File.Contents("C:\Temp\one.csv"),[Delimiter=",",Encoding=1252]),
+	#"Promoted Headers" = Table.PromoteHeaders(Source),
+	#"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Column1", type text}, {"Column2", Int64.Type}}),
 		
 	// This is where the joins happen. 
 	// Table.NestedJoin(#"Table1", {"Table1KeyColName"}, Table2, {"Table2KeyColName"}, "ColNameForJoinedTable", JoinKind)
-    #"Merged Queries" = Table.NestedJoin(#"Changed Type",{"Column1"},two,{"Column1"},"JoinedTwo",JoinKind.LeftOuter),
+	#"Merged Queries" = Table.NestedJoin(#"Changed Type",{"Column1"},two,{"Column1"},"JoinedTwo",JoinKind.LeftOuter),
 		
 	// Once tables are joined, you'll see a new "table type" column appear in your querytable. 
 	// That table column needs to be expanded to show the column(s) you want to see in the current querytable
 	// This part can also be done via the Power Query Interface, just click the expand button that appears at the new joined column
 	// Table.ExpandTableColumn(#"Merged Queries", "ColNameForJoinedTable", {"ColNameToExpand"}, {"NewColumnName"})
-    #"Expanded NewColumn" = Table.ExpandTableColumn(#"Merged Queries", "JoinedTwo", {"Column2"}, {"JoinedTwo.Column2"})
+	#"Expanded NewColumn" = Table.ExpandTableColumn(#"Merged Queries", "JoinedTwo", {"Column2"}, {"JoinedTwo.Column2"})
 in
-    #"Expanded NewColumn"
+	#"Expanded NewColumn"
 
 -------------------------------------------------------------------------------------------------------------------------------------
 
 
 
-However, if having both tables are not necessary, you can also join the tables within one single power query table by parameterizing the sources
+However, if having both tables are not necessary, you can also join the tables within one single power query table by parameterizing 
+the sources
 
 ADVANCED
 -------------------------------------------------------------------------------------------------------------------------------------
 let
-    Source = Csv.Document(File.Contents("C:\Temp\one.csv"),[Delimiter=",",Encoding=1252]),
-    Source1 = Csv.Document(File.Contents("C:\Temp\two.csv"),[Delimiter=",",Encoding=1252]),
-    #"Promoted Headers" = Table.PromoteHeaders(Source),
-    #"Promoted Headers1" = Table.PromoteHeaders(Source1),
-    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Column1", type text}, {"Column2", Int64.Type}}),
-    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers1",{{"Column1", type text}, {"Column2", Int64.Type}})
+	Source = Csv.Document(File.Contents("C:\Temp\one.csv"),[Delimiter=",",Encoding=1252]),
+	Source1 = Csv.Document(File.Contents("C:\Temp\two.csv"),[Delimiter=",",Encoding=1252]),
+	#"Promoted Headers" = Table.PromoteHeaders(Source),
+	#"Promoted Headers1" = Table.PromoteHeaders(Source1),
+	#"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Column1", type text}, {"Column2", Int64.Type}}),
+	#"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers1",{{"Column1", type text}, {"Column2", Int64.Type}})
     
-    // This is where the joins happen. 
+	// This is where the joins happen. 
 	// Table.NestedJoin(#"Table1", {Table1KeyColName}, #"Table2", {"Table2KeyColName"}, "ColNameForJoinedTable", JoinKind)
-    #"Merged Queries" = Table.NestedJoin(#"Changed Type",{"Column1"},#"Changed Type1",{"Column1"},"NewColumn",JoinKind.LeftOuter),
+	#"Merged Queries" = Table.NestedJoin(#"Changed Type",{"Column1"},#"Changed Type1",{"Column1"},"NewColumn",JoinKind.LeftOuter),
 	
 	// Once tables are joined, you'll see a new "table type" column appear in your querytable. 
 	// That table column needs to be expanded to show the column(s) you want to see in the current querytable
 	// This part can also be done via the Power Query Interface, just click the expand button that appears at the new joined column
 	// Table.ExpandTableColumn(#"Merged Queries", "ColNameForJoinedTable", {"ColNameToExpand"}, {"NewColumnName"})
-    #"Expanded NewColumn" = Table.ExpandTableColumn(#"Merged Queries", "NewColumn", {"Column2"}, {"NewColumn.Column2"})
+	#"Expanded NewColumn" = Table.ExpandTableColumn(#"Merged Queries", "NewColumn", {"Column2"}, {"NewColumn.Column2"})
 in
-    #"Expanded NewColumn"
+	#"Expanded NewColumn"
 
 -------------------------------------------------------------------------------------------------------------------------------------
